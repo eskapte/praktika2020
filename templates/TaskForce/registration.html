@@ -1,0 +1,42 @@
+{% extends 'TaskForce/layout.html' %}
+
+{% block title %}
+    Регистрация
+{% endblock %}
+
+{% block cities %}
+    {% for city in cities %}
+        <option value="{{ city.0 }}">{{ city.1 }}</option>
+    {% endfor %}
+
+{% endblock %}
+
+{% block content %}
+    <section class="reg-form">
+        {% if not user.is_authenticated %}
+            <h1>Регистрация аккаунта</h1>
+            <hr color="#f1f2f6">
+            <form method="post" class="reg-form">
+                {% csrf_token %}
+                {% for field in form.visible_fields %}
+                    <p>{{ field.label_tag }}<br>{{ field }}</p>
+                {% endfor %}
+                <div class="sel-role">
+                    <fieldset>
+                        <legend>Вы: </legend>
+                        <label for="I">
+                            <input type="radio" name="role" value="Исполнитель" id="I" class="role" checked> Исполнитель
+                        </label><br>
+                        <label for="Z">
+                            <input type="radio" name="role" value="Заказчик" id="Z" class="role"> Заказчик
+                        </label>
+                    </fieldset>
+
+                </div>
+                <input type="submit" value="Зарегестрироваться" class="btn">
+                </form>
+        {% else %}
+            <h1>Вы уже зарегестрированы</h1>
+        {% endif %}
+    </section>
+{% endblock %}

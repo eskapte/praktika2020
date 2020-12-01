@@ -1,0 +1,31 @@
+{% extends 'TaskForce/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Авторизация
+{% endblock %}
+
+{% block cities %}
+    {% for city in cities %}
+        <option value="{{ city.0 }}">{{ city.1 }}</option>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <section class="auth-form">
+        <h1>Авторизация</h1>
+        <hr color="#f1f2f6">
+        <form method="POST">
+            {% csrf_token %}
+            <label for="login">
+                <span>Логин:</span><br>
+                {{ form.username }}
+            </label><br>
+            <label for="password">
+                <span>Пароль:</span><br>
+                {{ form.password }}
+            </label><br>
+            <input type="submit" value="Войти" class="btn login-btn">
+        </form>
+    </section>
+{% endblock %}

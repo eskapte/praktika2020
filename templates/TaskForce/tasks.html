@@ -1,0 +1,56 @@
+{% extends 'TaskForce/layout.html' %}
+
+{% block title %}
+    Задания
+{% endblock %}
+
+{% block cities %}
+    {% for city in cities %}
+        <option value="{{ city.0 }}">{{ city.1 }}</option>
+    {% endfor %}
+
+{% endblock %}
+
+{% block content %}
+    <section class="main-content">
+        <header class="main-content--header">
+            <h1>Новые задания</h1>
+        </header>
+        <main class="task-list">
+            {% for task in tasks %}
+                <article class="task">
+                    <a href="{% url 'detail' pk=task.pk %}" class="task--title"><h3>{{ task.title }}</h3></a>
+                    <a href="?category={{ task.category.name }}" class="task--category">{{ task.category.name }}</a>
+                    <p class="task--desc">{{ task.desc|truncatechars:'130' }}</p>
+                    <span class="task--location">{{ task.get_location_display }}</span>
+                    <b class="task--price">{{ task.price }} ₽</b>
+                    <img src="{{ task.category.icon.url }}" alt="{{ task.category.name }}" width="60" class="task--category-icon">
+                    <em class="task--created">{{ task.created|timesince }} назад</em>
+                </article>
+            {% endfor %}
+        </main>
+    </section>
+    <section class="search-task">
+        <form method="GET">
+            <fieldset class="category-list">
+                <legend>Категории</legend>
+                {% for category in categories %}
+                    <label for="{{ category.id }}">
+                        <input type="checkbox" name="category" id="{{ category.id }}" value="{{ category.name }}"
+                        {% if category.name in active_categories %}
+                            checked
+                        {% endif %}
+                        >
+                        {{ category.name }}<br>
+                    </label>
+                {% endfor %}
+            </fieldset>
+            <fieldset class="additionally">
+                <legend>Дополнительно</legend>
+                <input type="checkbox" name="without-answer" id="wa" value="Без откликов"> Без откликов<br>
+                <input type="checkbox" name="completed" id="cmp" value="Выполненные"> Выполненные
+            </fieldset>
+            <input type="submit" value="Искать" class="btn find-filter-btn">
+        </form>
+    </section>
+{% endblock %}

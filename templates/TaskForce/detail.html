@@ -1,0 +1,113 @@
+{% extends 'TaskForce/layout.html' %}
+{% load static %}
+
+{% block title %}
+    {{ task.title }}
+{% endblock %}
+
+{% block cities %}
+    {% for city in cities %}
+        <option value="{{ city.0 }}">{{ city.1 }}</option>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <section class="detail-task">
+        <header class="detail-header">
+            <h1 class="detail-title">{{ task.title }}</h1>
+            <span class="detail-category">Размещено в категории <a href="{% url 'index' %}?category={{ task.category }}">
+                {{ task.category }}</a>
+                {{ task.created|timesince }} назад
+            </span>
+            <b class="detail-price">{{ task.price }} ₽</b>
+            <img src="{{ task.category.icon.url }}" class="detail-category-icon">
+        </header>
+        <main>
+            <b>Общее описание</b>
+            <p>{{ task.desc }}</p>
+            {% if task.files.count > 0 %}
+                <b>Вложения</b>
+                <div class="download">
+                {% for file in task.files.all %}
+                    <a href="{{ file.file.url }}">{{ file }}</a>
+                {% endfor %}
+                </div>
+            {% endif %}
+        </main>
+        <hr color="#f1f2f6">
+        <footer class="detail-footer">
+            {% if user.profile.is_customer %}
+                {% if user.username == task.author.username %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="submit" name="end" class="btn end" value="ЗАВЕРШИТЬ">
+                    </form>
+
+                {% endif %}
+            {% else %}
+                {% if not task.worker and user.is_authenticated %}
+                    <form method="POST" class="ans-form">
+                        {% csrf_token %}
+                        <label for="ans-text" class="ans-desc">
+                            <span>Напишите что-нибудь заказчику</span><br>
+{#                            <input type="text" name="ans-text" id="ans-text">#}
+                            {{ form.text }}
+                        </label><br>
+                        <label for="ans-price" class="ans-price">
+                            <span>Предложите вашу цену</span><br>
+{#                            <input type="number" name="ans-price" value="{{ task.price }}" id="ans-price" required>#}
+                            {{ form.price }}
+                        </label>
+                        <input type="submit" name="accept-work" class="btn accept" value="ОТКЛИКНУТЬСЯ">
+                    </form>
+                {% elif user.username == task.worker.username %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="submit" name="refuse" class="btn refuse" value="ОТКАЗАТЬСЯ">
+                    </form>
+                {% endif %}
+            {% endif %} 
+{#        <input type="submit" name="accept-work" class="btn accept" value="ОТКЛИКНУТЬСЯ">#}
+{#                    <input type="submit" name="end" class="btn end" value="ЗАВЕРШИТЬ">#}
+{#                    <input type="submit" name="refuse" class="btn refuse" value="ОТКАЗАТЬСЯ">#}
+        </footer>
+    </section>
+    <div class="answers-list">
+            <header class="answers-header">
+                <h3>Отклики ({{ task.applications.count }})</h3>
+            </header>
+            <main class="answers">
+                {% for answer in task.applications.all %}
+                    <section class="answer">
+                        <img src="{{ answer.author.profile.icon.url }}" width="45">
+                        <a>{{ answer.author.first_name }} {{ answer.author.last_name }}</a>
+                        <b>{{ answer.price }} ₽</b>
+                        <p>{{ answer.text }}</p>
+                        <span>{{ answer.created|timesince }} назад</span>
+                    {% if user.username == task.author.username %}
+                        {% if not task.worker %}
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="submit" class="btn" value="Подтвердить">
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                    </section>
+
+                {% endfor %}
+            </main>
+        </div>
+    <section class="author-block">
+        <h3>Заказчик</h3>
+        <article class="task-author-profile">
+            <div class="photo-and-name">
+                <img src="{{ task.author.profile.icon.url }}" width="60" height="60">
+                <b>{{ task.author.first_name }} {{ task.author.last_name }}</b>
+            </div>
+            <hr color="#f1f2f6">
+            <div class="tasks-and-regdate">
+                <span>{{ task.author.tasks.count }} Заданий</span> <span>На сайте {{ task.author.date_joined|timesince }}</span>
+            </div>
+        </article>
+    </section>
+{% endblock %}
